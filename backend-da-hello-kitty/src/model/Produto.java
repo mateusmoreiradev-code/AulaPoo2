@@ -6,6 +6,10 @@ public class Produto {
     private Double preco;
     private int quantidade;
 
+    public Produto(String nome, Double preco, int quantidade){
+        this(null, nome, preco, quantidade);
+    }
+
     public Produto(Long id, String nome, Double preco, int quantidade) {
         this.id = id;
         setNome(nome);
