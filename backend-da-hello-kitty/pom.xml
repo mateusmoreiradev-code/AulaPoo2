@@ -35,7 +35,7 @@
 
     <build>
         <!-- Seu código está diretamente na pasta src -->
-        <sourceDirectory></sourceDirectory>
+        <sourceDirectory>src</sourceDirectory>
 
         <plugins>
             <plugin>

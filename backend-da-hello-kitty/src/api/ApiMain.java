@@ -1,24 +1,28 @@
 package api;
 
+import dao.ProdutoDao;
+import dto.ProdutoRequest;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import model.Produto;
 
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class ApiMain {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         ProdutoDao produtoDao = new ProdutoDao();
 
         int porta = Integer.parseInt(System.getenv().getOrDefault("API_PORT", "7070"));
 
-        Javalin app = Javalin.create(config-> {
-            config.routes.get("/", ctx->ctx.json(Map.of("aplicacao", "Aula Exemplo API", "status", "online")));
+        Javalin app = Javalin.create(config -> {
+            config.routes.get("/", ctx -> ctx.json(Map.of("aplicacao",
+                    "Aula Exemplo API", "status", "online")));
 
-            config.routes.get("/api/produtos", ctx->executar(ctx, ()->ctx.json(produtoDao.listarTodos())));
+            config.routes.get("/api/produtos", ctx ->executar(ctx, ()->ctx.json(produtoDao.listarTodos())));
 
-            config.routes.get("api/produtos/{id}", ctx->executar(ctx, ()->{
+            config.routes.get("/api/produtos/{id}", ctx->executar(ctx, ()->{
                 Long id = Long.parseLong(ctx.pathParam("id"));
                 model.Produto produto = produtoDao.buscarPorId(id).orElseThrow(()->new NoSuchElementException("Produto não encontrado"));
                 ctx.json(produto);
@@ -49,32 +53,32 @@ public class ApiMain {
             }));
         }).start(porta);
 
-        System.out.println("API disponivel em http://localhost:" + app.port());
+        System.out.println("API disponível em http://localhost:" + app.port());
     }
-    private static void executar(Context ctx, AcaoHttp acao){
+
+    private static void executar(Context ctx, AcaoHttp acao) {
         try{
             acao.executar();
-        } catch (SecurityException e){
-            ctx.status(401).json(Map.of("erro", e.getMessage()));
-        } catch (NoSuchElementException e){
-            ctx.status(404).json(Map.of("erro", e.getMessage()));
-        } catch (IllegalStateException e){
-            ctx.status(409).json(Map.of("erro", e.getMessage()));
-        } catch (IllegalArgumentException e){
-            ctx.status(400).json(Map.of("erro", e.getMessage()));
-        } catch (SQLException e){
+        } catch (SecurityException error){
+            ctx.status(401).json(Map.of("erro", error.getMessage()));
+        } catch (NoSuchElementException error){
+            ctx.status(404).json(Map.of("erro", error.getMessage()));
+        } catch (IllegalStateException error){
+            ctx.status(409).json(Map.of("erro", error.getMessage()));
+        } catch (IllegalArgumentException error){
+            ctx.status(400).json(Map.of("erro", error.getMessage()));
+        } catch (SQLException error){
             ctx.status(500).json(Map.of("erro", "Falha ao acessar o banco de dados!"));
-            e.printStackTrace();
-        } catch (Exception e){
-            ctx.status(500).json(Map.of("erro", "Erro interno na API"));
-            e.printStackTrace();
+            error.printStackTrace();
+        } catch (Exception error){
+            ctx.status(500).json(Map.of("erro", "Erro interno de api"));
+            error.printStackTrace();
         }
+
     }
 
     @FunctionalInterface
-    private interface AcaoHttp{
+    private interface AcaoHttp {
         void executar() throws Exception;
     }
 }
-
-
